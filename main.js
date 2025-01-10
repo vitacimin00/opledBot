@@ -211,7 +211,8 @@ async function getUserInfo(token, proxy, index) {
             agent: agent
         });
         const { total_heartbeats } = response?.data?.data[0] || { total_heartbeats: '0' };
-        log.info(`Account ${index} Gained:`, { PointsToday: total_heartbeats });
+        log.info(`Account ${index} has gained points today:`, { PointsToday: total_heartbeats });
+
         return response.data.data;
     } catch (error) {
         if (error.response && error.response.status === 401) {
