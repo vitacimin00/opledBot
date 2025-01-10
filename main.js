@@ -299,7 +299,7 @@ const main = async () => {
                 if (!response && !response.token) throw new Error(`Failed to generate token for Account ${index + 1}`);
 
                 const token = response.token;
-                log.info(`login success for Account ${index + 1}:`, token.slice(0, 36) + "..." + token.slice(-24));
+                log.info(`login success for Account ${index + 1}:`, token.slice(0, 36) + "-" + token.slice(-24));
                 log.info(`Getting user info and claim details for account ${index + 1}...`);
                 const claimDaily = await getClaimDetails(token, proxy, index + 1);
                 if (claimDaily && !claimDaily.claimed) {
