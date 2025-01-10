@@ -302,8 +302,11 @@ const main = async () => {
 
         while (!isConnected) {
             try {
-                const response = await generateToken({ address }, proxy);
-                if (!response && !response.token) throw new Error(`Failed to generate token for Account ${index + 1}`);
+                let response = await generateToken({ address }, proxy);
+                while (!response && !response.token) {
+                    response = await generateToken({ address }, proxy);
+                    await new Promise(resolve => setTimeout(resolve, 3000));
+                }
 
                 const token = response.token;
                 log.info(`login success for Account ${index + 1}:`, token.slice(0, 36) + "-" + token.slice(-24));
@@ -324,16 +327,14 @@ const main = async () => {
                     const user = await getUserInfo(token, proxy, index + 1);
 
                     if (user === 'unauthorized') {
-                        isConnected = false;
-                        log.info(`Trying to get new token for account ${index + 1}...`);
+                        log.info(`Unauthorized: Token is invalid or expired for account ${index + 1}, reconnecting...`);
 
+                        isConnected = false;
                         socket.close();
                         clearInterval(userInfoInterval);
                         clearInterval(claimDetailsInterval);
-
-                        throw new Error('Unauthorized: Token is invalid or expired');
                     }
-                }, 10 * 60 * 1000); // Fetch user points every 10 minute
+                }, 10 * 60 * 1000); // Fetch user points every 10 minutes
 
                 claimDetailsInterval = setInterval(async () => {
                     try {
