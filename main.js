@@ -279,6 +279,12 @@ function generateRandomCapacity() {
 const main = async () => {
     log.info(banner);
     const wallets = readFile("wallets.txt")
+
+    if (wallets.length === 0) {
+        log.error('No wallets found in wallets.txt');
+        return;
+    }
+
     const proxies = readFile("proxy.txt");
 
     log.info(`Starting Program for all accounts:`, wallets.length);
