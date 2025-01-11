@@ -334,7 +334,7 @@ const main = async () => {
                         clearInterval(userInfoInterval);
                         clearInterval(claimDetailsInterval);
                     }
-                }, 10 * 60 * 1000); // Fetch user points every 10 minutes
+                }, 9 * 60 * 1000); // change to 9 minutes to prevent error 429 when claim daily reward.
 
                 claimDetailsInterval = setInterval(async () => {
                     try {
