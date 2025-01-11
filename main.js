@@ -192,7 +192,8 @@ async function generateToken(data, proxy) {
                 ...headers,
                 'Content-Type': 'application/json',
             },
-            agent: agent
+            httpsAgent: agent,
+            httpAgent: agent
         });
         return response.data.data;
     } catch (error) {
@@ -208,7 +209,8 @@ async function getUserInfo(token, proxy, index) {
                 ...headers,
                 'Authorization': 'Bearer ' + token
             },
-            agent: agent
+            httpsAgent: agent,
+            httpAgent: agent
         });
         const { total_heartbeats } = response?.data?.data[0] || { total_heartbeats: '0' };
         log.info(`Account ${index} has gained points today:`, { PointsToday: total_heartbeats });
@@ -233,7 +235,8 @@ async function getClaimDetails(token, proxy, index) {
                 ...headers,
                 'Authorization': 'Bearer ' + token
             },
-            agent: agent
+            httpsAgent: agent,
+            httpAgent: agent
         });
         const { tier, dailyPoint, claimed, nextClaim = 'Not Claimed' } = response?.data?.data || {};
         log.info(`Details for Account ${index}:`, { tier, dailyPoint, claimed, nextClaim });
@@ -252,7 +255,8 @@ async function claimRewards(token, proxy, index) {
                 ...headers,
                 'Authorization': 'Bearer ' + token
             },
-            agent: agent
+            httpsAgent: agent,
+            httpAgent: agent
         });
         log.info(`Daily Rewards Claimed for Account ${index}:`, response.data.data);
         return response.data.data;
@@ -303,12 +307,14 @@ const main = async () => {
         while (!isConnected) {
             try {
                 let response = await generateToken({ address }, proxy);
-                while (!response && !response.token) {
-                    response = await generateToken({ address }, proxy);
+                while (!response || !response.token) {
+                    log.error(`Failed to generate token for account ${index} retrying...`)
                     await new Promise(resolve => setTimeout(resolve, 3000));
+                    response = await generateToken({ address }, proxy);
                 }
 
                 const token = response.token;
+
                 log.info(`login success for Account ${index + 1}:`, token.slice(0, 36) + "-" + token.slice(-24));
                 log.info(`Getting user info and claim details for account ${index + 1}...`);
                 const claimDaily = await getClaimDetails(token, proxy, index + 1);
